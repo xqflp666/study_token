@@ -1,18 +1,20 @@
-package top.huhuiyu.servlet.filter;
+package top.xqf.template.filter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import top.huhuiyu.servlet.dao.TbTokenDAO;
-import top.huhuiyu.servlet.entity.TbToken;
-import top.huhuiyu.servlet.entity.TokenInfo;
-import top.huhuiyu.servlet.util.IpUtil;
-import top.huhuiyu.servlet.util.StringUtils;
+import top.xqf.template.dao.TbTokenDAO;
+import top.xqf.template.entity.TbToken;
+import top.xqf.template.entity.TokenInfo;
+import top.xqf.template.util.IpUtil;
+import top.xqf.template.util.JsonUtil;
+import top.xqf.template.util.StringUtils;
 
 import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * 处理编码的过滤器
@@ -21,10 +23,9 @@ import java.util.Optional;
  */
 @WebFilter(filterName = "DTokenFilter", urlPatterns = "*.token")
 public class DTokenFilter implements Filter {
+  public static final String REQUEST_TOKEN_NAME = "server_token";
   private static Logger logger = LoggerFactory.getLogger(DTokenFilter.class);
-  private static final String REQUEST_TOKEN = "javaweb_template_token";
-  private static final String HEAD_TOKEN = "token";
-  private static final String REQUEST_TOKEN_ATTRIBUTE = "javaweb_template_token";
+
   private TbTokenDAO tbTokenDAO = new TbTokenDAO();
 
   @Override
@@ -33,53 +34,48 @@ public class DTokenFilter implements Filter {
   }
 
   @Override
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-    logger.debug("token信息处理");
-    HttpServletRequest req = (HttpServletRequest) request;
-    // 获取请求头中的token
-    String token = req.getHeader(HEAD_TOKEN);
-    // 不存在就获取请求中的token
-    if (!StringUtils.hasTest(token)) {
-      token = req.getParameter(REQUEST_TOKEN);
-    }
-    token = Optional.ofNullable(token).orElse("");
-    logger.debug("客户拿到的token信息：{}", token);
-    // 获取数据库中的token信息
-    TbToken tbToken = new TbToken();
-    tbToken.setToken(token);
+  public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+
+    //第一步，获取对象中token信息
+    HttpServletRequest request=(HttpServletRequest) servletRequest;
+    String token=request.getParameter(REQUEST_TOKEN_NAME);
+    token = token==null? "" :token.trim();
+    TbToken tbToken=null;
+
     try {
-      tbToken = tbTokenDAO.selectOrInsert(tbToken);
-      // 更新ip地址信息
-      TokenInfo tokenInfo = tbToken.content();
-      tokenInfo.setIp(IpUtil.getIpAddr(req));
-      tbToken.setTokenInfo(tokenInfo.toString());
-      // 将token信息放到请求中
-      req.setAttribute(REQUEST_TOKEN_ATTRIBUTE, tbToken);
-      logger.debug("处理后的token信息：{}", tbToken);
+      //去数据库校验token是否存在
+      TbToken check=tbTokenDAO.queryByToken(token);
+      if(check==null){
+        //不存在就创建一个新的token
+        token=UUID.randomUUID().toString();
+        tbToken=new TbToken();
+        TokenInfo tokenInfo=new TokenInfo();
+        tokenInfo.setIp(IpUtil.getIpAddr(request));
+        tbToken.setToken(token);
+        tbToken.setTokenInfo(JsonUtil.stringify(tokenInfo));
+        tbTokenDAO.Insert(tbToken);
+      }else {
+        //存在就更新ip地址
+        tbToken=check;
+        TokenInfo tokenInfo=tbToken.content();
+        tokenInfo.setIp(IpUtil.getIpAddr(request));
+        tbToken.setTokenInfo(JsonUtil.stringify(tokenInfo));
+        tbTokenDAO.update(tbToken);
+      }
     } catch (Exception e) {
       throw new ServletException(e);
     }
-    chain.doFilter(request, response);
-    try {
-      // 保存最新的token信息
-      tbTokenDAO.update(tbToken);
-    } catch (Exception e) {
-      throw new ServletException(e);
-    }
+
+    //放在请求中
+    logger.debug("token信息:{}",tbToken);
+    request.setAttribute(REQUEST_TOKEN_NAME,tbToken);
+    filterChain.doFilter(servletRequest,servletResponse);
   }
 
-  /**
-   * 获取请求中token信息
-   *
-   * @param request 请求对象
-   * @return 请求中token信息
-   */
-  public static TbToken getTokenInfo(HttpServletRequest request) {
-    return (TbToken) request.getAttribute(REQUEST_TOKEN_ATTRIBUTE);
-  }
 
   @Override
   public void destroy() {
+
     logger.info("token过滤器销毁");
   }
 

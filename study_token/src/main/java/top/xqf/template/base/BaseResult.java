@@ -1,4 +1,4 @@
-package top.huhuiyu.servlet.base;
+package top.xqf.template.base;
 
 import java.io.Serializable;
 

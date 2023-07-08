@@ -1,4 +1,4 @@
-package top.huhuiyu.servlet.util;
+package top.xqf.template.util;
 
 import org.apache.commons.beanutils.BeanUtils;
 

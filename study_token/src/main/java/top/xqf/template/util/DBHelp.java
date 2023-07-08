@@ -1,4 +1,4 @@
-package top.huhuiyu.servlet.util;
+package top.xqf.template.util;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

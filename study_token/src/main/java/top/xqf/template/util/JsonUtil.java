@@ -1,4 +1,4 @@
-package top.huhuiyu.servlet.util;
+package top.xqf.template.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JavaType;

@@ -1,4 +1,4 @@
-package top.huhuiyu.servlet.util;
+package top.xqf.template.util;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.InetAddress;

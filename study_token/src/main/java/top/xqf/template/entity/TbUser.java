@@ -1,6 +1,6 @@
-package top.huhuiyu.servlet.entity;
+package top.xqf.template.entity;
 
-import top.huhuiyu.servlet.util.JsonUtil;
+import top.xqf.template.util.JsonUtil;
 
 import java.io.Serializable;
 import java.util.Date;

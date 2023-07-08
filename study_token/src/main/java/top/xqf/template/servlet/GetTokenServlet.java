@@ -1,6 +1,8 @@
 package top.xqf.template.servlet;
 
+import top.xqf.template.base.BaseResult;
 import top.xqf.template.entity.TbToken;
+import top.xqf.template.entity.TbUser;
 import top.xqf.template.filter.DTokenFilter;
 import top.xqf.template.util.JsonUtil;
 
@@ -20,11 +22,16 @@ public class GetTokenServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-//        http://127.0.0.1:8080/study_token//get.token?server_token=72eb1106-e302-446c-9d38-e48189eb5249
+//        http://127.0.0.1:8080/study_token//get.token?server_token=62fee806-e116-4092-8520-554168463121
         TbToken token=(TbToken) req.getAttribute(DTokenFilter.REQUEST_TOKEN_NAME);
         resp.setContentType("text/html");
         try {
-            resp.getWriter().println(JsonUtil.stringify(token));
+            BaseResult<TbUser> result=new BaseResult<>();
+            result.setCode(200);
+            result.setSuccess(true);
+            result.setToken(token.getToken());
+            result.setData(token.content().getUser());
+            resp.getWriter().println(JsonUtil.stringify(result));
         } catch (Exception e) {
             throw new ServletException(e);
         }

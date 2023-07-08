@@ -1,10 +1,10 @@
-package top.huhuiyu.servlet.dao;
+package top.xqf.template.dao;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import top.huhuiyu.servlet.entity.TbUser;
-import top.huhuiyu.servlet.util.DBHelp;
-import top.huhuiyu.servlet.util.StringUtils;
+import top.xqf.template.entity.TbUser;
+import top.xqf.template.util.DBHelp;
+import top.xqf.template.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

@@ -1,4 +1,4 @@
-package top.huhuiyu.servlet.util;
+package top.xqf.template.util;
 
 /**
  * 字符串工具类

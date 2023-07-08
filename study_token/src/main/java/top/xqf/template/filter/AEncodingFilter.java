@@ -1,4 +1,4 @@
-package top.huhuiyu.servlet.filter;
+package top.xqf.template.filter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,9 +1,9 @@
-package top.huhuiyu.servlet.dao;
+package top.xqf.template.dao;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import top.huhuiyu.servlet.entity.TbToken;
-import top.huhuiyu.servlet.util.DBHelp;
+import top.xqf.template.entity.TbToken;
+import top.xqf.template.util.DBHelp;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -51,21 +51,14 @@ public class TbTokenDAO {
    * @return 添加或者更新之后的token信息
    * @throws Exception 处理发生异常
    */
-  public TbToken selectOrInsert(TbToken token) throws Exception {
+  public TbToken Insert(TbToken token) throws Exception {
     Connection connection = DBHelp.getConnection();
-    TbToken check = queryByToken(token.getToken());
-    PreparedStatement ps;
-    if (check == null) {
-      // token不存在的情况，新建token并保存到数据库
-      token.setToken(UUID.randomUUID().toString());
-      token.setTokenInfo("{}");
-      ps = connection.prepareStatement(INSERT);
-      ps.setString(1, token.getToken());
-      ps.setString(2, token.getTokenInfo());
-      ps.executeUpdate();
-    }
+    PreparedStatement ps = connection.prepareStatement(INSERT);
+    ps.setString(1, token.getToken());
+    ps.setString(2, token.getTokenInfo());
+    ps.executeUpdate();
     connection.close();
-    return check == null ? token : check;
+    return token;
   }
 
   /**
